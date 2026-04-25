@@ -1,129 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>ZED Flash Anzan Jungle PRO+</title>
 <meta charset="UTF-8" />
 <title>ZED Flash Anzan Jungle</title>
-
 <style>
-body {
-  margin:0;
-  overflow:hidden;
-  font-family:Arial;
-  background:black;
-}
-body { margin:0; overflow:hidden; font-family:Arial; }
-
-/* UI */
-#ui {
-  position:absolute;
-  top:20px;
-  left:20px;
-  width:260px;
-  padding:15px;
-  background:rgba(0,0,0,0.6);
-  border:1px solid #00ff99;
-  border-radius:12px;
-  color:white;
-  backdrop-filter: blur(10px);
-  z-index:10;
-}
-
-h2 {
-  color:#00ff99;
-  text-align:center;
-  margin:5px 0 10px;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(0,0,0,0.7);
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  width: 260px;
-  z-index: 10;
-}
-
-label {
-  font-size:12px;
-  opacity:0.8;
-  display:block;
-  margin-top:8px;
-}
-
-select, input {
-  width:100%;
-  padding:6px;
-  margin-top:4px;
-}
-#ui label { display:block; margin-top:8px; font-size:12px; }
-#ui input, #ui select { width: 100%; }
-
-button {
-#startBtn {
-  margin-top:10px;
-  width:100%;
-  padding:10px;
-  background:#00ff99;
-  border:none;
-  font-weight:bold;
-  padding:8px;
-  cursor:pointer;
-  margin-top:10px;
-}
-
-button:hover {
-  transform:scale(1.05);
-  background:#00cc77;
-/* HUD */
-#hud {
-  position:absolute;
-  bottom:20px;
-  left:20px;
-  color:white;
-  font-size:22px;
-  background:rgba(0,0,0,0.4);
-  padding:10px;
-  border-radius:8px;
-}
-
-/* ANSWER */
-/* ANSWER PANEL */
-#answerBox {
-  position:absolute;
-  bottom:30px;
-  top:50%;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.7);
-  padding:15px;
-  border-radius:10px;
-  transform:translate(-50%,-50%);
-  background:rgba(0,0,0,0.9);
-  color:white;
-  padding:20px;
-  border-radius:10px;
-  display:none;
-  z-index:10;
-  text-align:center;
-}
-
-#result {
-#answerBox input {
-  width:100%;
-  padding:8px;
-  margin-top:10px;
-  text-align:center;
-}
+  body { margin:0; overflow:hidden; font-family:Arial; }
+  #ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    width: 260px;
+  }
+  #ui label { display:block; margin-top:8px; font-size:12px; }
+  #ui input, #ui select {
+    width: 100%;
+  }
+  #startBtn {
+    margin-top:10px;
+    width:100%;
+    padding:8px;
+    cursor:pointer;
+  }
+  #hud {
+    position:absolute;
+    bottom:20px;
+    left:20px;
+    color:white;
+    font-size:22px;
+    background:rgba(0,0,0,0.4);
+    padding:10px;
+    border-radius:8px;
+  }
 </style>
 </head>
-
 <body>
 
-<!-- UI -->
 <div id="ui">
-  <h2>🌿 ZED Flash Anzan</h2>
   <label>Speed</label>
   <input id="speed" type="range" min="1" max="20" value="5">
 
@@ -138,145 +54,58 @@ button:hover {
 
   <label>Mode</label>
   <select id="mode">
-@@ -95,209 +86,195 @@
+    <option value="both">+ and -</option>
+    <option value="plus">Only +</option>
     <option value="minus">Only -</option>
   </select>
 
-  <label>Digits</label>
-  <select id="digits">
-    <option value="9">1–9</option>
-    <option value="99">1–99</option>
-    <option value="999">1–999</option>
-    <option value="9999">1–9999</option>
-    <option value="99999">1–99999</option>
-  </select>
   <label>Number of Lines</label>
   <input id="lines" type="number" value="5" min="1" max="50">
 
-  <label>Speed</label>
-  <input type="range" id="speed" min="200" max="2000" value="900">
-
-  <label>Lines</label>
-  <input type="number" id="lines" min="3" max="100" value="10">
-
-  <button onclick="startGame()">START</button>
   <button id="startBtn">Start Game</button>
 </div>
 
-<!-- ANSWER -->
 <div id="hud">Score: 0</div>
 
-<div id="answerBox">
-  <input type="number" id="answer" placeholder="Your answer">
-  <h3>Enter Answer</h3>
-  <input id="answer" type="number">
-  <button onclick="checkAnswer()">Submit</button>
-  <div id="result"></div>
-  <p id="result"></p>
-</div>
-
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
-
-/* =======================
-   BASIC SETUP
-======================= */
-const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x0a1a0a, 10, 90);
-
-const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
-camera.position.set(0,2,6);
-
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth, innerHeight);
-document.body.appendChild(renderer.domElement);
-
-/* LIGHT */
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(5,10,5);
-scene.add(light);
-
-/* GROUND */
-const ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(200,200),
-  new THREE.MeshStandardMaterial({color:0x0a3d0a})
-);
-ground.rotation.x = -Math.PI/2;
-scene.add(ground);
-
-/* TREES */
-function tree(x,z){
-  const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.2,0.3,2),
-    new THREE.MeshStandardMaterial({color:0x5c3a21})
-  );
 let scene, camera, renderer;
 let numbers = [];
+let speed = 0.1;
+let score = 0;
 let sequence = [];
 let index = 0;
 let running = false;
-let score = 0;
-let totalSum = 0;
-let speed = 0.1;
 
-  const leaves = new THREE.Mesh(
-    new THREE.SphereGeometry(1),
-    new THREE.MeshStandardMaterial({color:0x0f5})
-  );
 init();
 animate();
 
-  trunk.position.set(x,1,z);
-  leaves.position.set(x,3,z);
-/* ================= INIT ================= */
 function init(){
   scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0x0a3d1c, 10, 100);
 
-  scene.add(trunk);
-  scene.add(leaves);
-}
   camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
   camera.position.set(0,2,5);
 
-for(let i=0;i<60;i++){
-  tree((Math.random()-0.5)*60, (Math.random()-0.5)*60);
-}
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(innerWidth, innerHeight);
   document.body.appendChild(renderer.domElement);
 
-/* PLAYER */
-let player;
-const loader = new THREE.GLTFLoader();
-
-loader.load(
-  "https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb",
-  gltf=>{
-    player = gltf.scene;
-    player.scale.set(0.5,0.5,0.5);
-    player.position.set(0,0,-2);
-    scene.add(player);
-  }
-);
+  // LIGHT
   const light = new THREE.DirectionalLight(0xffffff, 1);
   light.position.set(5,10,5);
   scene.add(light);
 
-/* GAME */
-let sequence = [];
-let total = 0;
-let running = false;
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(20,200),
-    new THREE.MeshStandardMaterial({color:0x1f7a3a})
-  );
+  // GROUND (jungle path)
+  const groundGeo = new THREE.PlaneGeometry(20, 200);
+  const groundMat = new THREE.MeshStandardMaterial({color:0x1f7a3a});
+  const ground = new THREE.Mesh(groundGeo, groundMat);
   ground.rotation.x = -Math.PI/2;
   ground.position.z = -80;
   scene.add(ground);
 
+  // trees (simple cubes)
   for(let i=0;i<60;i++){
     let tree = new THREE.Mesh(
       new THREE.CylinderGeometry(0.2,0.5,2),
@@ -286,190 +115,96 @@ let running = false;
     scene.add(tree);
   }
 
-/* GENERATE NUMBER */
-function gen(max, mode){
-  let n = Math.floor(Math.random()*max)+1;
   document.getElementById("startBtn").onclick = startGame;
 }
 
-  if(mode === "plus") return n;
-  if(mode === "minus") return -n;
-/* ================= GENERATE ================= */
 function generateSequence(){
   sequence = [];
-  totalSum = 0;
-
-  return Math.random()>0.5 ? n : -n;
-}
   const max = parseInt(document.getElementById("digits").value);
   const mode = document.getElementById("mode").value;
   const lines = parseInt(document.getElementById("lines").value);
 
-/* FLOAT NUMBER */
-function showNumber(n){
-  const mesh = new THREE.Mesh(
-    new THREE.SphereGeometry(0.2),
-    new THREE.MeshStandardMaterial({color:0x00ff99})
-  );
   for(let i=0;i<lines;i++){
     let val = Math.floor(Math.random()*max)+1;
 
-  mesh.position.set(
-    (Math.random()-0.5)*3,
-    2,
-    (Math.random()-0.5)*3
-  );
-    if(mode === "plus") val = Math.abs(val);
-    else if(mode === "minus") val = -Math.abs(val);
-    else val = Math.random()>0.5 ? val : -val;
-
-  scene.add(mesh);
-  setTimeout(()=>scene.remove(mesh), 600);
-    sequence.push(val);
-    totalSum += val;
+    if(mode === "plus") {
+      sequence.push(val);
+    } else if(mode === "minus") {
+      sequence.push(-val);
+    } else {
+      sequence.push(Math.random()>0.5 ? val : -val);
+    }
   }
 }
 
-/* START GAME */
-function startGame(){
-  if(running) return;
-  running = true;
-/* ================= SPAWN ================= */
 function spawnNumber(value, z){
   const canvas = document.createElement("canvas");
   canvas.width = 256;
   canvas.height = 256;
   const ctx = canvas.getContext("2d");
 
-  sequence = [];
-  total = 0;
-  ctx.fillStyle="black";
+  ctx.fillStyle = "rgba(0,0,0,0.7)";
   ctx.fillRect(0,0,256,256);
 
-  document.getElementById("ui").style.display = "none";
-  ctx.font="bold 60px Arial";
-  ctx.fillStyle="white";
-  ctx.textAlign="center";
+  ctx.font = "bold 60px Arial";
+  ctx.fillStyle = "white";
+  ctx.textAlign = "center";
   ctx.fillText(value,128,140);
 
-  const mode = document.getElementById("mode").value;
-  const max = parseInt(document.getElementById("digits").value);
-  const speed = parseInt(document.getElementById("speed").value);
-  const lines = parseInt(document.getElementById("lines").value);
   const tex = new THREE.CanvasTexture(canvas);
+  const mat = new THREE.MeshBasicMaterial({map:tex, transparent:true});
+  const geo = new THREE.PlaneGeometry(2,2);
 
-  let i = 0;
-  const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(2,2),
-    new THREE.MeshBasicMaterial({map:tex, transparent:true})
-  );
-
-  const interval = setInterval(()=>{
+  const mesh = new THREE.Mesh(geo,mat);
   mesh.position.set((Math.random()-0.5)*6,2,z);
   scene.add(mesh);
 
-    let num = gen(max, mode);
   numbers.push(mesh);
 }
 
-    sequence.push(num);
-    total += num;
-/* ================= START ================= */
 function startGame(){
   running = true;
-  index = 0;
   score = 0;
-
-    showNumber(num);
+  index = 0;
   numbers.forEach(n => scene.remove(n));
   numbers = [];
 
-    i++;
-    if(i >= lines){
-      clearInterval(interval);
-  document.getElementById("answerBox").style.display = "none";
-  document.getElementById("result").innerText = "";
-
-      setTimeout(()=>{
-        document.getElementById("answerBox").style.display = "block";
-      }, speed);
-    }
   generateSequence();
 
   for(let i=0;i<sequence.length;i++){
     spawnNumber(sequence[i], -i*6 - 10);
   }
 
-  }, speed);
   speed = parseFloat(document.getElementById("speed").value) * 0.05;
 }
 
-/* CHECK ANSWER */
-/* ================= ANSWER ================= */
-function checkAnswer(){
-  const val = parseInt(document.getElementById("answer").value);
-  const result = document.getElementById("result");
-  let ans = parseInt(document.getElementById("answer").value);
-  let result = document.getElementById("result");
-
-  if(val === total){
-    result.innerHTML = "✅ Correct!";
-  if(ans === totalSum){
-    result.innerText = "✅ Correct!";
-  } else {
-    result.innerHTML = "❌ Wrong! Answer: " + total;
-    result.innerText = "❌ Wrong! Answer: " + totalSum;
-  }
-
-  setTimeout(()=>{
-    document.getElementById("answerBox").style.display = "none";
-    document.getElementById("ui").style.display = "block";
-    document.getElementById("answer").value = "";
-    result.innerHTML = "";
-    running = false;
-  }, 2000);
-  },2000);
-}
-
-/* ANIMATION */
-/* ================= LOOP ================= */
 function animate(){
   requestAnimationFrame(animate);
 
-  if(player){
-    player.position.x = Math.sin(Date.now()*0.001)*2;
   if(running){
     camera.position.z -= speed;
-
-    let passedAll = true;
 
     numbers.forEach(n=>{
       n.position.z += speed;
 
-      if(n.position.z < camera.position.z + 10){
-        passedAll = false;
+      if(n.position.z > camera.position.z + 2){
+        if(index < sequence.length){
+          score += sequence[index];
+          index++;
+          document.getElementById("hud").innerText = "Score: " + score;
+        }
       }
     });
-
-    // END GAME
-    if(passedAll && numbers.length > 0){
-      running = false;
-      document.getElementById("ui").style.display = "none";
-      document.getElementById("answerBox").style.display = "block";
-    }
   }
 
   renderer.render(scene,camera);
 }
-animate();
 
-/* RESIZE */
 window.addEventListener("resize", ()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
-
 </script>
 
 </body>
