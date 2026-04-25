@@ -2,94 +2,89 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ZED Flash Anzan Jungle PRO+</title>
+<title>ZED Flash Anzan 3D</title>
 
 <style>
-body { margin:0; overflow:hidden; font-family:Arial; background:black; }
-
-#ui {
-  position:absolute;
-  top:10px; left:10px;
-  width:270px;
-  padding:12px;
-  background:rgba(0,0,0,0.75);
-  color:white;
-  border-radius:10px;
-  backdrop-filter: blur(10px);
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial;
+  background: black;
 }
 
-label { font-size:12px; display:block; margin-top:8px; }
+/* UI PANEL */
+#ui {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 260px;
+  padding: 15px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid #00ff99;
+  border-radius: 12px;
+  color: white;
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
 
-input, select {
-  width:100%;
-  padding:6px;
-  border-radius:6px;
-  border:none;
-  margin-top:4px;
+h2 {
+  color: #00ff99;
+  text-align: center;
+  margin: 5px 0 10px;
+}
+
+label {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+select, input {
+  width: 100%;
+  margin: 5px 0 10px;
+  padding: 5px;
 }
 
 button {
-  width:100%;
-  margin-top:10px;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:#2ecc71;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
+  width: 100%;
+  padding: 10px;
+  background: #00ff99;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-#hud {
-  position:absolute;
-  bottom:15px;
-  left:15px;
-  color:white;
-  font-size:20px;
-  background:rgba(0,0,0,0.4);
-  padding:10px;
-  border-radius:10px;
+button:hover {
+  transform: scale(1.05);
+  background: #00cc77;
 }
 
-#popup {
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  background:rgba(0,0,0,0.9);
-  padding:20px;
-  border-radius:12px;
-  color:white;
-  display:none;
-  text-align:center;
-  min-width:220px;
+/* ANSWER BOX */
+#answerBox {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  padding: 15px;
+  border-radius: 10px;
+  color: white;
+  display: none;
+  z-index: 10;
 }
 
-#popup input {
-  margin-top:10px;
-  padding:8px;
-  width:100%;
+#result {
+  margin-top: 10px;
+  text-align: center;
 }
-
-.good { color:#2ecc71; font-size:20px; }
-.bad { color:#e74c3c; font-size:20px; }
 </style>
 </head>
 
 <body>
 
+<!-- UI -->
 <div id="ui">
-  <label>Speed</label>
-  <input id="speed" type="range" min="1" max="20" value="6">
-
-  <label>Digit Range</label>
-  <select id="digits">
-    <option value="9">1 - 9</option>
-    <option value="99">1 - 99</option>
-    <option value="999">1 - 999</option>
-    <option value="9999">1 - 9999</option>
-    <option value="99999">1 - 99999</option>
-  </select>
+  <h2>🌿 ZED Flash Anzan</h2>
 
   <label>Mode</label>
   <select id="mode">
@@ -98,209 +93,196 @@ button {
     <option value="minus">Only -</option>
   </select>
 
-  <label>Lines</label>
-  <input id="lines" type="number" value="5" min="1" max="50">
+  <label>Digits</label>
+  <select id="digits">
+    <option value="9">1–9</option>
+    <option value="99">1–99</option>
+    <option value="999">1–999</option>
+    <option value="9999">1–9999</option>
+    <option value="99999">1–99999</option>
+  </select>
+
+  <label>Speed (ms)</label>
+  <input type="range" id="speed" min="200" max="2000" value="1000">
+
+  <label>Lines (3–100)</label>
+  <input type="number" id="lines" min="3" max="100" value="10">
 
   <button onclick="startGame()">START</button>
 </div>
 
-<div id="hud">Score: 0</div>
-
-<div id="popup">
-  <div id="msg">Enter result</div>
-  <input id="answer" type="number">
-  <button onclick="check()">Submit</button>
+<!-- ANSWER -->
+<div id="answerBox">
+  <input type="number" id="answer" placeholder="Your answer">
+  <button onclick="checkAnswer()">Submit</button>
+  <div id="result"></div>
 </div>
 
+<!-- THREE.JS -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
+/* =========================
+   BASIC 3D SETUP
+========================= */
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x0a1a0a, 10, 80);
 
-let scene, camera, renderer;
-let player;
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+camera.position.set(0, 2, 6);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+/* LIGHT */
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5,10,5);
+scene.add(light);
+
+/* GROUND */
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(200,200),
+  new THREE.MeshStandardMaterial({color:0x0a3d0a})
+);
+ground.rotation.x = -Math.PI/2;
+scene.add(ground);
+
+/* TREES */
+function tree(x,z){
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.2,0.2,2),
+    new THREE.MeshStandardMaterial({color:0x5c3a21})
+  );
+  const leaves = new THREE.Mesh(
+    new THREE.SphereGeometry(1),
+    new THREE.MeshStandardMaterial({color:0x0f5})
+  );
+
+  trunk.position.set(x,1,z);
+  leaves.position.set(x,3,z);
+
+  scene.add(trunk);
+  scene.add(leaves);
+}
+
+for(let i=0;i<60;i++){
+  tree((Math.random()-0.5)*60, (Math.random()-0.5)*60);
+}
+
+/* PLAYER */
+const player = new THREE.Mesh(
+  new THREE.BoxGeometry(0.5,1,0.5),
+  new THREE.MeshStandardMaterial({color:0x00ff99})
+);
+player.position.y = 0.5;
+scene.add(player);
+
+/* GAME DATA */
 let numbers = [];
-let sequence = [];
-let result = 0;
-let index = 0;
+let total = 0;
 let running = false;
-let speed = 0.1;
-let gameEnded = false;
 
-init();
-animate();
+/* RANDOM NUMBER */
+function gen(max, mode){
+  let n = Math.floor(Math.random()*max)+1;
 
-function init(){
-
-  scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x0b3d2e, 10, 120);
-
-  camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
-  camera.position.set(0,3,6);
-
-  renderer = new THREE.WebGLRenderer({antialias:true});
-  renderer.setSize(innerWidth, innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  const light = new THREE.DirectionalLight(0xffffff, 1);
-  light.position.set(5,10,5);
-  scene.add(light);
-
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(30,200),
-    new THREE.MeshStandardMaterial({color:0x145a32})
-  );
-  ground.rotation.x = -Math.PI/2;
-  ground.position.z = -80;
-  scene.add(ground);
-
-  // 🌴 PLAYER (real humanoid model)
-  const loader = new THREE.GLTFLoader();
-
-  loader.load(
-    "https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb",
-    (gltf)=>{
-      player = gltf.scene;
-      player.scale.set(0.6,0.6,0.6);
-      player.position.set(0,0,-2);
-      scene.add(player);
-    }
-  );
-
-  // jungle trees
-  for(let i=0;i<60;i++){
-    let tree = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.3,0.7,2),
-      new THREE.MeshStandardMaterial({color:0x0b3d1a})
-    );
-    tree.position.set((Math.random()>0.5?7:-7),1,-i*3);
-    scene.add(tree);
-  }
+  if(mode === "plus") return n;
+  if(mode === "minus") return -n;
+  return Math.random()>0.5 ? n : -n;
 }
 
-function generate(){
-  sequence = [];
-  result = 0;
-
-  let max = +digits.value;
-  let mode = modeSelect.value;
-  let lines = +linesInput.value;
-
-  for(let i=0;i<lines;i++){
-    let v = Math.floor(Math.random()*max)+1;
-
-    if(mode === "plus") v = Math.abs(v);
-    if(mode === "minus") v = -Math.abs(v);
-    if(mode === "both") v = Math.random()>0.5 ? v : -v;
-
-    sequence.push(v);
-    result += v;
-  }
-}
-
-function spawn(val, z){
-  const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-
-  ctx.fillStyle="black";
-  ctx.fillRect(0,0,256,256);
-
-  ctx.font="bold 70px Arial";
-  ctx.fillStyle="white";
-  ctx.textAlign="center";
-  ctx.fillText(val,128,140);
-
-  const tex = new THREE.CanvasTexture(canvas);
-
+/* FLOAT TEXT (simple cube substitute) */
+function showNumber(n){
   const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(2,2),
-    new THREE.MeshBasicMaterial({map:tex,transparent:true})
+    new THREE.SphereGeometry(0.2),
+    new THREE.MeshStandardMaterial({color:0x00ff99})
   );
 
-  mesh.position.set((Math.random()-0.5)*6,2,z);
+  mesh.position.set(
+    (Math.random()-0.5)*3,
+    2,
+    (Math.random()-0.5)*3
+  );
+
   scene.add(mesh);
 
-  numbers.push(mesh);
+  setTimeout(()=>scene.remove(mesh), 700);
 }
 
+/* START GAME */
 function startGame(){
-  numbers.forEach(n=>scene.remove(n));
-  numbers = [];
-
-  index = 0;
+  if(running) return;
   running = true;
-  gameEnded = false;
 
-  digits = document.getElementById("digits");
-  modeSelect = document.getElementById("mode");
-  linesInput = document.getElementById("lines");
+  numbers = [];
+  total = 0;
 
-  generate();
+  document.getElementById("ui").style.display = "none";
 
-  for(let i=0;i<sequence.length;i++){
-    spawn(sequence[i], -i*5 - 10); // closer spacing FIX
-  }
+  const mode = document.getElementById("mode").value;
+  const max = parseInt(document.getElementById("digits").value);
+  const speed = parseInt(document.getElementById("speed").value);
+  const lines = parseInt(document.getElementById("lines").value);
 
-  speed = +document.getElementById("speed").value * 0.05;
+  let i = 0;
+
+  const interval = setInterval(()=>{
+    let num = gen(max, mode);
+
+    numbers.push(num);
+    total += num;
+
+    showNumber(num);
+
+    i++;
+    if(i >= lines){
+      clearInterval(interval);
+
+      setTimeout(()=>{
+        document.getElementById("answerBox").style.display = "block";
+      }, speed);
+    }
+
+  }, speed);
 }
 
-function endGame(){
-  if(gameEnded) return;
-  gameEnded = true;
+/* CHECK ANSWER */
+function checkAnswer(){
+  const val = parseInt(document.getElementById("answer").value);
+  const result = document.getElementById("result");
 
-  document.getElementById("popup").style.display="block";
-}
-
-function check(){
-  let ans = +document.getElementById("answer").value;
-
-  let popup = document.getElementById("popup");
-
-  if(ans === result){
-    popup.innerHTML = "<div class='good'>✔ Correct!</div>";
+  if(val === total){
+    result.innerHTML = "✅ Correct!";
   } else {
-    popup.innerHTML = "<div class='bad'>✖ Wrong</div><br>Answer: "+result;
+    result.innerHTML = "❌ Wrong!";
   }
 
   setTimeout(()=>{
-    popup.style.display="none";
-    location.reload();
-  },2500);
+    document.getElementById("answerBox").style.display = "none";
+    document.getElementById("ui").style.display = "block";
+    document.getElementById("answer").value = "";
+    result.innerHTML = "";
+    running = false;
+  }, 2000);
 }
 
+/* ANIMATION LOOP */
 function animate(){
   requestAnimationFrame(animate);
 
-  if(running){
-
-    camera.position.z -= speed;
-
-    numbers.forEach((n,i)=>{
-      n.position.z += speed;
-
-      // FIX: end when last item passes player
-      if(i === numbers.length-1 && n.position.z > camera.position.z + 3){
-        running = false;
-        endGame();
-      }
-    });
-
-    if(player){
-      player.position.z -= speed;
-    }
-  }
+  player.position.x = Math.sin(Date.now()*0.001)*2;
 
   renderer.render(scene,camera);
 }
+animate();
 
-window.addEventListener("resize",()=>{
+/* RESIZE */
+window.addEventListener("resize", ()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight);
+  renderer.setSize(innerWidth, innerHeight);
 });
-
 </script>
 
 </body>
