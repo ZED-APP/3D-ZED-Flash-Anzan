@@ -2,22 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ZED Flash Anzan 3D</title>
+<title>ZED Flash Anzan 3D Jungle</title>
 
 <style>
 body {
   margin: 0;
   overflow: hidden;
   font-family: Arial;
-  background: black;
+  background: #000;
 }
 
-/* UI PANEL */
+/* ===== UI PANEL ===== */
 #ui {
   position: absolute;
   top: 20px;
   left: 20px;
-  width: 260px;
+  width: 280px;
   padding: 15px;
   background: rgba(0,0,0,0.6);
   border: 1px solid #00ff99;
@@ -29,8 +29,8 @@ body {
 
 h2 {
   color: #00ff99;
-  text-align: center;
   margin: 5px 0 10px;
+  text-align: center;
 }
 
 label {
@@ -41,7 +41,7 @@ label {
 select, input {
   width: 100%;
   margin: 5px 0 10px;
-  padding: 5px;
+  padding: 6px;
 }
 
 button {
@@ -56,10 +56,9 @@ button {
 
 button:hover {
   transform: scale(1.05);
-  background: #00cc77;
 }
 
-/* ANSWER BOX */
+/* ===== ANSWER BOX ===== */
 #answerBox {
   position: absolute;
   bottom: 30px;
@@ -68,7 +67,6 @@ button:hover {
   background: rgba(0,0,0,0.7);
   padding: 15px;
   border-radius: 10px;
-  color: white;
   display: none;
   z-index: 10;
 }
@@ -76,18 +74,19 @@ button:hover {
 #result {
   margin-top: 10px;
   text-align: center;
+  color: white;
 }
 </style>
 </head>
 
 <body>
 
-<!-- UI -->
+<!-- CONTROL PANEL -->
 <div id="ui">
   <h2>🌿 ZED Flash Anzan</h2>
 
-  <label>Mode</label>
-  <select id="mode">
+  <label>Type</label>
+  <select id="type">
     <option value="both">+ and -</option>
     <option value="plus">Only +</option>
     <option value="minus">Only -</option>
@@ -102,19 +101,19 @@ button:hover {
     <option value="99999">1–99999</option>
   </select>
 
-  <label>Speed (ms)</label>
-  <input type="range" id="speed" min="200" max="2000" value="1000">
+  <label>Speed</label>
+  <input type="range" id="speed" min="200" max="2000" value="900">
 
   <label>Lines (3–100)</label>
   <input type="number" id="lines" min="3" max="100" value="10">
 
-  <button onclick="startGame()">START</button>
+  <button onclick="start()">START TRAINING</button>
 </div>
 
 <!-- ANSWER -->
 <div id="answerBox">
   <input type="number" id="answer" placeholder="Your answer">
-  <button onclick="checkAnswer()">Submit</button>
+  <button onclick="check()">Submit</button>
   <div id="result"></div>
 </div>
 
@@ -122,14 +121,15 @@ button:hover {
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
+
 /* =========================
-   BASIC 3D SETUP
+   3D SETUP
 ========================= */
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x0a1a0a, 10, 80);
 
 const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
-camera.position.set(0, 2, 6);
+camera.position.set(0,2,6);
 
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth, innerHeight);
@@ -154,6 +154,7 @@ function tree(x,z){
     new THREE.CylinderGeometry(0.2,0.2,2),
     new THREE.MeshStandardMaterial({color:0x5c3a21})
   );
+
   const leaves = new THREE.Mesh(
     new THREE.SphereGeometry(1),
     new THREE.MeshStandardMaterial({color:0x0f5})
@@ -166,7 +167,7 @@ function tree(x,z){
   scene.add(leaves);
 }
 
-for(let i=0;i<60;i++){
+for(let i=0;i<70;i++){
   tree((Math.random()-0.5)*60, (Math.random()-0.5)*60);
 }
 
@@ -178,21 +179,22 @@ const player = new THREE.Mesh(
 player.position.y = 0.5;
 scene.add(player);
 
-/* GAME DATA */
-let numbers = [];
-let total = 0;
+/* GAME STATE */
+let sequence = [];
+let resultValue = 0;
 let running = false;
 
-/* RANDOM NUMBER */
-function gen(max, mode){
+/* NUMBER GENERATOR */
+function gen(max, type){
   let n = Math.floor(Math.random()*max)+1;
 
-  if(mode === "plus") return n;
-  if(mode === "minus") return -n;
+  if(type === "plus") return n;
+  if(type === "minus") return -n;
+
   return Math.random()>0.5 ? n : -n;
 }
 
-/* FLOAT TEXT (simple cube substitute) */
+/* SHOW NUMBER (3D EFFECT) */
 function showNumber(n){
   const mesh = new THREE.Mesh(
     new THREE.SphereGeometry(0.2),
@@ -206,21 +208,20 @@ function showNumber(n){
   );
 
   scene.add(mesh);
-
-  setTimeout(()=>scene.remove(mesh), 700);
+  setTimeout(()=>scene.remove(mesh), 600);
 }
 
 /* START GAME */
-function startGame(){
+function start(){
   if(running) return;
   running = true;
 
-  numbers = [];
-  total = 0;
+  sequence = [];
+  resultValue = 0;
 
   document.getElementById("ui").style.display = "none";
 
-  const mode = document.getElementById("mode").value;
+  const type = document.getElementById("type").value;
   const max = parseInt(document.getElementById("digits").value);
   const speed = parseInt(document.getElementById("speed").value);
   const lines = parseInt(document.getElementById("lines").value);
@@ -228,10 +229,10 @@ function startGame(){
   let i = 0;
 
   const interval = setInterval(()=>{
-    let num = gen(max, mode);
+    const num = gen(max, type);
 
-    numbers.push(num);
-    total += num;
+    sequence.push(num);
+    resultValue += num;
 
     showNumber(num);
 
@@ -248,21 +249,21 @@ function startGame(){
 }
 
 /* CHECK ANSWER */
-function checkAnswer(){
+function check(){
   const val = parseInt(document.getElementById("answer").value);
-  const result = document.getElementById("result");
+  const res = document.getElementById("result");
 
-  if(val === total){
-    result.innerHTML = "✅ Correct!";
+  if(val === resultValue){
+    res.innerHTML = "✅ Excellent!";
   } else {
-    result.innerHTML = "❌ Wrong!";
+    res.innerHTML = "❌ Wrong Answer";
   }
 
   setTimeout(()=>{
     document.getElementById("answerBox").style.display = "none";
     document.getElementById("ui").style.display = "block";
     document.getElementById("answer").value = "";
-    result.innerHTML = "";
+    res.innerHTML = "";
     running = false;
   }, 2000);
 }
@@ -278,11 +279,12 @@ function animate(){
 animate();
 
 /* RESIZE */
-window.addEventListener("resize", ()=>{
+window.addEventListener("resize",()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
+
 </script>
 
 </body>
