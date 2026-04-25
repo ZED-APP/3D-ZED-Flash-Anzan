@@ -2,46 +2,93 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>ZED Flash Anzan Jungle</title>
+<title>ZED Flash Anzan Jungle PRO</title>
+
 <style>
-  body { margin:0; overflow:hidden; font-family:Arial; }
-  #ui {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    padding: 12px;
-    border-radius: 8px;
-    width: 260px;
-  }
-  #ui label { display:block; margin-top:8px; font-size:12px; }
-  #ui input, #ui select {
-    width: 100%;
-  }
-  #startBtn {
-    margin-top:10px;
-    width:100%;
-    padding:8px;
-    cursor:pointer;
-  }
-  #hud {
-    position:absolute;
-    bottom:20px;
-    left:20px;
-    color:white;
-    font-size:22px;
-    background:rgba(0,0,0,0.4);
-    padding:10px;
-    border-radius:8px;
-  }
+body { margin:0; overflow:hidden; font-family:Arial; background:black; }
+
+#ui {
+  position:absolute;
+  top:12px; left:12px;
+  width:270px;
+  padding:12px;
+  background:rgba(20,20,20,0.75);
+  color:white;
+  border-radius:10px;
+  backdrop-filter: blur(8px);
+}
+
+#ui label { font-size:12px; margin-top:8px; display:block; opacity:0.9; }
+
+#ui input, #ui select {
+  width:100%;
+  padding:6px;
+  border-radius:6px;
+  border:none;
+  margin-top:4px;
+}
+
+button {
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#2ecc71;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover { background:#27ae60; }
+
+#hud {
+  position:absolute;
+  bottom:20px;
+  left:20px;
+  color:white;
+  font-size:22px;
+  background:rgba(0,0,0,0.4);
+  padding:10px 14px;
+  border-radius:10px;
+}
+
+#popup {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(0,0,0,0.85);
+  padding:20px;
+  border-radius:12px;
+  color:white;
+  display:none;
+  text-align:center;
+}
+
+#popup input {
+  margin-top:10px;
+  padding:8px;
+  width:100%;
+  border-radius:6px;
+  border:none;
+}
+
+#popup button {
+  margin-top:10px;
+}
+
+.good { color:#2ecc71; font-size:20px; }
+.bad { color:#e74c3c; font-size:20px; }
+
 </style>
 </head>
+
 <body>
 
 <div id="ui">
   <label>Speed</label>
-  <input id="speed" type="range" min="1" max="20" value="5">
+  <input id="speed" type="range" min="1" max="20" value="6">
 
   <label>Digit Range</label>
   <select id="digits">
@@ -62,33 +109,41 @@
   <label>Number of Lines</label>
   <input id="lines" type="number" value="5" min="1" max="50">
 
-  <button id="startBtn">Start Game</button>
+  <button onclick="startGame()">START TRAINING</button>
 </div>
 
 <div id="hud">Score: 0</div>
+
+<div id="popup">
+  <div id="resultText">Enter result</div>
+  <input id="answer" type="number" placeholder="Your answer">
+  <button onclick="checkAnswer()">Submit</button>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 
 <script>
 let scene, camera, renderer;
+let player;
 let numbers = [];
-let speed = 0.1;
-let score = 0;
 let sequence = [];
 let index = 0;
+let score = 0;
 let running = false;
+let finalResult = 0;
+let speed = 0.1;
 
 init();
 animate();
 
 function init(){
   scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x0a3d1c, 10, 100);
+  scene.fog = new THREE.Fog(0x0b3d2e, 10, 120);
 
   camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
-  camera.position.set(0,2,5);
+  camera.position.set(0,3,6);
 
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(innerWidth, innerHeight);
   document.body.appendChild(renderer.domElement);
 
@@ -97,77 +152,86 @@ function init(){
   light.position.set(5,10,5);
   scene.add(light);
 
-  // GROUND (jungle path)
-  const groundGeo = new THREE.PlaneGeometry(20, 200);
-  const groundMat = new THREE.MeshStandardMaterial({color:0x1f7a3a});
-  const ground = new THREE.Mesh(groundGeo, groundMat);
+  // GROUND
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(30,200),
+    new THREE.MeshStandardMaterial({color:0x145a32})
+  );
   ground.rotation.x = -Math.PI/2;
   ground.position.z = -80;
   scene.add(ground);
 
-  // trees (simple cubes)
-  for(let i=0;i<60;i++){
-    let tree = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.2,0.5,2),
+  // PLAYER (simple humanoid)
+  player = new THREE.Mesh(
+    new THREE.CapsuleGeometry(0.4, 1.2, 6, 12),
+    new THREE.MeshStandardMaterial({color:0xffd166})
+  );
+  player.position.set(0,1,-2);
+  scene.add(player);
+
+  // trees
+  for(let i=0;i<80;i++){
+    const tree = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.3,0.6,2),
       new THREE.MeshStandardMaterial({color:0x0b3d1a})
     );
-    tree.position.set((Math.random()>0.5?6:-6),1,-i*4);
+    tree.position.set((Math.random()>0.5?7:-7),1,-i*3);
     scene.add(tree);
   }
-
-  document.getElementById("startBtn").onclick = startGame;
 }
 
 function generateSequence(){
   sequence = [];
-  const max = parseInt(document.getElementById("digits").value);
+  finalResult = 0;
+
+  const max = +document.getElementById("digits").value;
   const mode = document.getElementById("mode").value;
-  const lines = parseInt(document.getElementById("lines").value);
+  const lines = +document.getElementById("lines").value;
 
   for(let i=0;i<lines;i++){
-    let val = Math.floor(Math.random()*max)+1;
+    let v = Math.floor(Math.random()*max)+1;
 
-    if(mode === "plus") {
-      sequence.push(val);
-    } else if(mode === "minus") {
-      sequence.push(-val);
-    } else {
-      sequence.push(Math.random()>0.5 ? val : -val);
-    }
+    if(mode === "plus") v = Math.abs(v);
+    if(mode === "minus") v = -Math.abs(v);
+    if(mode === "both") v = Math.random()>0.5 ? v : -v;
+
+    sequence.push(v);
+    finalResult += v;
   }
 }
 
-function spawnNumber(value, z){
+function spawnNumber(val, z){
   const canvas = document.createElement("canvas");
-  canvas.width = 256;
-  canvas.height = 256;
+  canvas.width = 256; canvas.height = 256;
   const ctx = canvas.getContext("2d");
 
   ctx.fillStyle = "rgba(0,0,0,0.7)";
   ctx.fillRect(0,0,256,256);
 
-  ctx.font = "bold 60px Arial";
+  ctx.font = "bold 70px Arial";
   ctx.fillStyle = "white";
   ctx.textAlign = "center";
-  ctx.fillText(value,128,140);
+  ctx.fillText(val,128,140);
 
   const tex = new THREE.CanvasTexture(canvas);
-  const mat = new THREE.MeshBasicMaterial({map:tex, transparent:true});
-  const geo = new THREE.PlaneGeometry(2,2);
 
-  const mesh = new THREE.Mesh(geo,mat);
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(2,2),
+    new THREE.MeshBasicMaterial({map:tex,transparent:true})
+  );
+
   mesh.position.set((Math.random()-0.5)*6,2,z);
   scene.add(mesh);
-
   numbers.push(mesh);
 }
 
 function startGame(){
-  running = true;
-  score = 0;
-  index = 0;
   numbers.forEach(n => scene.remove(n));
   numbers = [];
+
+  score = 0;
+  index = 0;
+  running = true;
 
   generateSequence();
 
@@ -175,24 +239,52 @@ function startGame(){
     spawnNumber(sequence[i], -i*6 - 10);
   }
 
-  speed = parseFloat(document.getElementById("speed").value) * 0.05;
+  speed = +document.getElementById("speed").value * 0.05;
+}
+
+function showPopup(){
+  document.getElementById("popup").style.display = "block";
+  document.getElementById("resultText").innerText = "Enter final result";
+}
+
+function checkAnswer(){
+  const ans = +document.getElementById("answer").value;
+
+  const popup = document.getElementById("popup");
+
+  if(ans === finalResult){
+    popup.innerHTML = "<div class='good'>✔ Correct! Excellent memory</div>";
+  } else {
+    popup.innerHTML = "<div class='bad'>✖ Wrong Answer</div><br>Correct: " + finalResult;
+  }
+
+  setTimeout(()=>{
+    popup.style.display = "none";
+    popup.innerHTML = `
+      <div id="resultText">Enter result</div>
+      <input id="answer" type="number">
+      <button onclick="checkAnswer()">Submit</button>
+    `;
+  }, 2500);
 }
 
 function animate(){
   requestAnimationFrame(animate);
 
   if(running){
+    player.position.z -= speed;
     camera.position.z -= speed;
 
     numbers.forEach(n=>{
       n.position.z += speed;
 
       if(n.position.z > camera.position.z + 2){
-        if(index < sequence.length){
-          score += sequence[index];
-          index++;
-          document.getElementById("hud").innerText = "Score: " + score;
-        }
+        index++;
+      }
+
+      if(index >= sequence.length){
+        running = false;
+        setTimeout(showPopup, 800);
       }
     });
   }
@@ -200,10 +292,10 @@ function animate(){
   renderer.render(scene,camera);
 }
 
-window.addEventListener("resize", ()=>{
+window.addEventListener("resize",()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(innerWidth,innerHeight);
 });
 </script>
 
