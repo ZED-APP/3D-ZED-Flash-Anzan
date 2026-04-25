@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>ZED Flash Anzan Jungle</title>
+<style>
+  body { margin:0; overflow:hidden; font-family:Arial; }
+  #ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    width: 260px;
+  }
+  #ui label { display:block; margin-top:8px; font-size:12px; }
+  #ui input, #ui select {
+    width: 100%;
+  }
+  #startBtn {
+    margin-top:10px;
+    width:100%;
+    padding:8px;
+    cursor:pointer;
+  }
+  #hud {
+    position:absolute;
+    bottom:20px;
+    left:20px;
+    color:white;
+    font-size:22px;
+    background:rgba(0,0,0,0.4);
+    padding:10px;
+    border-radius:8px;
+  }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <label>Speed</label>
+  <input id="speed" type="range" min="1" max="20" value="5">
+
+  <label>Digit Range</label>
+  <select id="digits">
+    <option value="9">1 - 9</option>
+    <option value="99">1 - 99</option>
+    <option value="999">1 - 999</option>
+    <option value="9999">1 - 9999</option>
+    <option value="99999">1 - 99999</option>
+  </select>
+
+  <label>Mode</label>
+  <select id="mode">
+    <option value="both">+ and -</option>
+    <option value="plus">Only +</option>
+    <option value="minus">Only -</option>
+  </select>
+
+  <label>Number of Lines</label>
+  <input id="lines" type="number" value="5" min="1" max="50">
+
+  <button id="startBtn">Start Game</button>
+</div>
+
+<div id="hud">Score: 0</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+let scene, camera, renderer;
+let numbers = [];
+let speed = 0.1;
+let score = 0;
+let sequence = [];
+let index = 0;
+let running = false;
+
+init();
+animate();
+
+function init(){
+  scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x0a3d1c, 10, 100);
+
+  camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+  camera.position.set(0,2,5);
+
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(innerWidth, innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // LIGHT
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(5,10,5);
+  scene.add(light);
+
+  // GROUND (jungle path)
+  const groundGeo = new THREE.PlaneGeometry(20, 200);
+  const groundMat = new THREE.MeshStandardMaterial({color:0x1f7a3a});
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI/2;
+  ground.position.z = -80;
+  scene.add(ground);
+
+  // trees (simple cubes)
+  for(let i=0;i<60;i++){
+    let tree = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.2,0.5,2),
+      new THREE.MeshStandardMaterial({color:0x0b3d1a})
+    );
+    tree.position.set((Math.random()>0.5?6:-6),1,-i*4);
+    scene.add(tree);
+  }
+
+  document.getElementById("startBtn").onclick = startGame;
+}
+
+function generateSequence(){
+  sequence = [];
+  const max = parseInt(document.getElementById("digits").value);
+  const mode = document.getElementById("mode").value;
+  const lines = parseInt(document.getElementById("lines").value);
+
+  for(let i=0;i<lines;i++){
+    let val = Math.floor(Math.random()*max)+1;
+
+    if(mode === "plus") {
+      sequence.push(val);
+    } else if(mode === "minus") {
+      sequence.push(-val);
+    } else {
+      sequence.push(Math.random()>0.5 ? val : -val);
+    }
+  }
+}
+
+function spawnNumber(value, z){
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "rgba(0,0,0,0.7)";
+  ctx.fillRect(0,0,256,256);
+
+  ctx.font = "bold 60px Arial";
+  ctx.fillStyle = "white";
+  ctx.textAlign = "center";
+  ctx.fillText(value,128,140);
+
+  const tex = new THREE.CanvasTexture(canvas);
+  const mat = new THREE.MeshBasicMaterial({map:tex, transparent:true});
+  const geo = new THREE.PlaneGeometry(2,2);
+
+  const mesh = new THREE.Mesh(geo,mat);
+  mesh.position.set((Math.random()-0.5)*6,2,z);
+  scene.add(mesh);
+
+  numbers.push(mesh);
+}
+
+function startGame(){
+  running = true;
+  score = 0;
+  index = 0;
+  numbers.forEach(n => scene.remove(n));
+  numbers = [];
+
+  generateSequence();
+
+  for(let i=0;i<sequence.length;i++){
+    spawnNumber(sequence[i], -i*6 - 10);
+  }
+
+  speed = parseFloat(document.getElementById("speed").value) * 0.05;
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+
+  if(running){
+    camera.position.z -= speed;
+
+    numbers.forEach(n=>{
+      n.position.z += speed;
+
+      if(n.position.z > camera.position.z + 2){
+        if(index < sequence.length){
+          score += sequence[index];
+          index++;
+          document.getElementById("hud").innerText = "Score: " + score;
+        }
+      }
+    });
+  }
+
+  renderer.render(scene,camera);
+}
+
+window.addEventListener("resize", ()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+
+</body>
+</html>
