@@ -1,9 +1,11 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>ZED Flash Anzan 3D</title>
 <title>ZED Flash Anzan 3D Jungle</title>
-<title>ZED Flash Anzan Jungle PRO+</title>
+<meta charset="UTF-8" />
+<title>ZED Flash Anzan Jungle</title>
 
 <style>
 body {
@@ -12,11 +14,8 @@ body {
   font-family: Arial;
   background: black;
   background: #000;
-  margin:0;
-  overflow:hidden;
-  font-family:Arial;
-  background:black;
 }
+body { margin:0; overflow:hidden; font-family:Arial; }
 
 /* UI PANEL */
 /* ===== UI PANEL ===== */
@@ -25,26 +24,17 @@ body {
   position: absolute;
   top: 20px;
   left: 20px;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
   width: 260px;
   width: 280px;
   padding: 15px;
   background: rgba(0,0,0,0.6);
   border: 1px solid #00ff99;
-  border-radius: 12px;
-  color: white;
-  position:absolute;
-  top:20px;
-  left:20px;
-  width:260px;
-  padding:15px;
-  background:rgba(0,0,0,0.6);
-  border:1px solid #00ff99;
-  border-radius:12px;
-  color:white;
-  backdrop-filter: blur(10px);
-  z-index: 10;
-  z-index:10;
-}
 @@ -29,8 +29,8 @@
 
 h2 {
@@ -52,64 +42,50 @@ h2 {
   text-align: center;
   margin: 5px 0 10px;
   text-align: center;
-  color:#00ff99;
-  text-align:center;
-  margin:5px 0 10px;
+  z-index: 10;
 }
 
 label {
-  font-size: 12px;
-  opacity: 0.8;
-  font-size:12px;
-  opacity:0.8;
-  display:block;
-  margin-top:8px;
-}
-
 @@ -41,7 +41,7 @@
 select, input {
   width: 100%;
   margin: 5px 0 10px;
   padding: 5px;
   padding: 6px;
-  width:100%;
-  padding:6px;
-  margin-top:4px;
 }
+#ui label { display:block; margin-top:8px; font-size:12px; }
+#ui input, #ui select { width: 100%; }
 
 button {
-  width: 100%;
-  padding: 10px;
-  background: #00ff99;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
-  width:100%;
-  padding:10px;
-  background:#00ff99;
-  border:none;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:10px;
-}
 @@ -56,10 +56,9 @@
+#startBtn {
+  margin-top:10px;
+  width:100%;
+  padding:8px;
+  cursor:pointer;
+}
 
 button:hover {
   transform: scale(1.05);
-  transform:scale(1.05);
-  background:#00cc77;
   background: #00cc77;
+/* HUD */
+#hud {
+  position:absolute;
+  bottom:20px;
+  left:20px;
+  color:white;
+  font-size:22px;
+  background:rgba(0,0,0,0.4);
+  padding:10px;
+  border-radius:8px;
 }
 
 /* ANSWER BOX */
 /* ===== ANSWER BOX ===== */
-/* ANSWER */
+/* ANSWER PANEL */
 #answerBox {
   position: absolute;
   bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
 @@ -68,26 +67,26 @@
   background: rgba(0,0,0,0.7);
   padding: 15px;
@@ -118,37 +94,47 @@ button:hover {
   display: none;
   z-index: 10;
   position:absolute;
-  bottom:30px;
+  top:50%;
   left:50%;
-  transform:translateX(-50%);
-  background:rgba(0,0,0,0.7);
-  padding:15px;
-  border-radius:10px;
+  transform:translate(-50%,-50%);
+  background:rgba(0,0,0,0.9);
   color:white;
+  padding:20px;
+  border-radius:10px;
   display:none;
-  z-index:10;
+  text-align:center;
 }
 
 #result {
   margin-top: 10px;
   text-align: center;
   color: white;
+#answerBox input {
+  width:100%;
+  padding:8px;
   margin-top:10px;
-  text-align:center;
 }
 </style>
 </head>
 
 <body>
 
-<!-- CONTROL PANEL -->
 <!-- UI -->
 <!-- CONTROL PANEL -->
 <div id="ui">
   <h2>🌿 ZED Flash Anzan</h2>
+  <label>Speed</label>
+  <input id="speed" type="range" min="1" max="20" value="5">
 
-  <label>Type</label>
-  <select id="type">
+  <label>Digit Range</label>
+  <select id="digits">
+    <option value="9">1 - 9</option>
+    <option value="99">1 - 99</option>
+    <option value="999">1 - 999</option>
+    <option value="9999">1 - 9999</option>
+    <option value="99999">1 - 99999</option>
+  </select>
+
   <label>Mode</label>
   <select id="mode">
   <label>Type</label>
@@ -156,7 +142,6 @@ button:hover {
     <option value="both">+ and -</option>
     <option value="plus">Only +</option>
     <option value="minus">Only -</option>
-@@ -104,29 +107,29 @@
 @@ -102,34 +101,35 @@ <h2>🌿 ZED Flash Anzan</h2>
     <option value="99999">1–99999</option>
   </select>
@@ -167,26 +152,30 @@ button:hover {
   <input type="range" id="speed" min="200" max="2000" value="900">
 
   <label>Lines (3–100)</label>
-  <label>Lines</label>
   <input type="number" id="lines" min="3" max="100" value="10">
+  <label>Number of Lines</label>
+  <input id="lines" type="number" value="5" min="1" max="50">
 
-  <button onclick="start()">START TRAINING</button>
   <button onclick="startGame()">START</button>
   <button onclick="start()">START TRAINING</button>
+  <button id="startBtn">Start Game</button>
 </div>
 
 <!-- ANSWER -->
+<div id="hud">Score: 0</div>
+
 <div id="answerBox">
   <input type="number" id="answer" placeholder="Your answer">
-  <button onclick="check()">Submit</button>
+  <h3>Enter Answer</h3>
+  <input id="answer" type="number">
   <button onclick="checkAnswer()">Submit</button>
   <button onclick="check()">Submit</button>
   <div id="result"></div>
+  <p id="result"></p>
 </div>
 
 <!-- THREE.JS -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
 
@@ -194,123 +183,169 @@ button:hover {
    BASIC 3D SETUP
    3D SETUP
 ========================= */
-/* =======================
-   BASIC SETUP
-======================= */
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x0a1a0a, 10, 80);
-scene.fog = new THREE.Fog(0x0a1a0a, 10, 90);
 
 const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
 camera.position.set(0, 2, 6);
 camera.position.set(0,2,6);
-@@ -151,7 +154,7 @@
-/* TREES */
-function tree(x,z){
-  const trunk = new THREE.Mesh(
 
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth, innerHeight);
 @@ -154,6 +154,7 @@ <h2>🌿 ZED Flash Anzan</h2>
     new THREE.CylinderGeometry(0.2,0.2,2),
-    new THREE.CylinderGeometry(0.2,0.3,2),
     new THREE.MeshStandardMaterial({color:0x5c3a21})
   );
+let scene, camera, renderer;
+let numbers = [];
+let sequence = [];
+let index = 0;
+let running = false;
+let score = 0;
+let totalSum = 0;
+let speed = 0.1;
 
-@@ -167,34 +170,40 @@
   const leaves = new THREE.Mesh(
     new THREE.SphereGeometry(1),
     new THREE.MeshStandardMaterial({color:0x0f5})
 @@ -166,7 +167,7 @@ <h2>🌿 ZED Flash Anzan</h2>
   scene.add(leaves);
 }
+init();
+animate();
 
-for(let i=0;i<70;i++){
+/* ================= INIT ================= */
+function init(){
+  scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x0a3d1c, 10, 100);
+
+  camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+  camera.position.set(0,2,5);
+
 for(let i=0;i<60;i++){
 for(let i=0;i<70;i++){
   tree((Math.random()-0.5)*60, (Math.random()-0.5)*60);
+  renderer = new THREE.WebGLRenderer();
+  renderer.setSize(innerWidth, innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(5,10,5);
+  scene.add(light);
+
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(20,200),
+    new THREE.MeshStandardMaterial({color:0x1f7a3a})
+  );
+  ground.rotation.x = -Math.PI/2;
+  ground.position.z = -80;
+  scene.add(ground);
+
+  for(let i=0;i<60;i++){
+    let tree = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.2,0.5,2),
+      new THREE.MeshStandardMaterial({color:0x0b3d1a})
+    );
+    tree.position.set((Math.random()>0.5?6:-6),1,-i*4);
+    scene.add(tree);
+  }
+
+  document.getElementById("startBtn").onclick = startGame;
 }
 
-/* PLAYER */
-const player = new THREE.Mesh(
-  new THREE.BoxGeometry(0.5,1,0.5),
-  new THREE.MeshStandardMaterial({color:0x00ff99})
-let player;
-const loader = new THREE.GLTFLoader();
-
-loader.load(
-  "https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb",
-  gltf=>{
-    player = gltf.scene;
-    player.scale.set(0.5,0.5,0.5);
-    player.position.set(0,0,-2);
-    scene.add(player);
-  }
-);
 @@ -178,21 +179,22 @@ <h2>🌿 ZED Flash Anzan</h2>
 player.position.y = 0.5;
 scene.add(player);
+/* ================= GENERATE ================= */
+function generateSequence(){
+  sequence = [];
+  totalSum = 0;
 
 /* GAME DATA */
 let numbers = [];
 let total = 0;
 /* GAME STATE */
-/* GAME */
 let sequence = [];
 let resultValue = 0;
-let total = 0;
 let running = false;
+  const max = parseInt(document.getElementById("digits").value);
+  const mode = document.getElementById("mode").value;
+  const lines = parseInt(document.getElementById("lines").value);
 
 /* RANDOM NUMBER */
 function gen(max, mode){
 /* NUMBER GENERATOR */
 function gen(max, type){
-/* GENERATE NUMBER */
-function gen(max, mode){
   let n = Math.floor(Math.random()*max)+1;
+  for(let i=0;i<lines;i++){
+    let val = Math.floor(Math.random()*max)+1;
 
-  if(type === "plus") return n;
-  if(type === "minus") return -n;
   if(mode === "plus") return n;
   if(mode === "minus") return -n;
   if(type === "plus") return n;
   if(type === "minus") return -n;
+    if(mode === "plus") val = Math.abs(val);
+    else if(mode === "minus") val = -Math.abs(val);
+    else val = Math.random()>0.5 ? val : -val;
 
   return Math.random()>0.5 ? n : -n;
+    sequence.push(val);
+    totalSum += val;
+  }
 }
 
 /* FLOAT TEXT (simple cube substitute) */
 /* SHOW NUMBER (3D EFFECT) */
-/* FLOAT NUMBER */
 function showNumber(n){
+/* ================= SPAWN ================= */
+function spawnNumber(value, z){
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle="black";
+  ctx.fillRect(0,0,256,256);
+
+  ctx.font="bold 60px Arial";
+  ctx.fillStyle="white";
+  ctx.textAlign="center";
+  ctx.fillText(value,128,140);
+
+  const tex = new THREE.CanvasTexture(canvas);
+
   const mesh = new THREE.Mesh(
     new THREE.SphereGeometry(0.2),
-@@ -212,27 +221,28 @@
 @@ -206,32 +208,31 @@ <h2>🌿 ZED Flash Anzan</h2>
+    new THREE.PlaneGeometry(2,2),
+    new THREE.MeshBasicMaterial({map:tex, transparent:true})
   );
 
+  mesh.position.set((Math.random()-0.5)*6,2,z);
   scene.add(mesh);
 
   setTimeout(()=>scene.remove(mesh), 700);
   setTimeout(()=>scene.remove(mesh), 600);
+  numbers.push(mesh);
 }
 
 /* START GAME */
-function start(){
+/* ================= START ================= */
 function startGame(){
 function start(){
   if(running) return;
   running = true;
+  index = 0;
+  score = 0;
 
+  numbers.forEach(n => scene.remove(n));
   numbers = [];
   total = 0;
   sequence = [];
   resultValue = 0;
-  total = 0;
 
   document.getElementById("ui").style.display = "none";
 
-  const type = document.getElementById("type").value;
   const mode = document.getElementById("mode").value;
   const type = document.getElementById("type").value;
   const max = parseInt(document.getElementById("digits").value);
@@ -318,65 +353,85 @@ function start(){
   const lines = parseInt(document.getElementById("lines").value);
 
   let i = 0;
+  document.getElementById("answerBox").style.display = "none";
+  document.getElementById("result").innerText = "";
 
   const interval = setInterval(()=>{
-    const num = gen(max, type);
-
     let num = gen(max, mode);
     const num = gen(max, type);
+  generateSequence();
 
     numbers.push(num);
     total += num;
     sequence.push(num);
     resultValue += num;
-    total += num;
 
     showNumber(num);
+  for(let i=0;i<sequence.length;i++){
+    spawnNumber(sequence[i], -i*6 - 10);
+  }
 
-@@ -249,43 +259,45 @@
 @@ -248,21 +249,21 @@ <h2>🌿 ZED Flash Anzan</h2>
+  speed = parseFloat(document.getElementById("speed").value) * 0.05;
 }
 
 /* CHECK ANSWER */
-function check(){
+/* ================= ANSWER ================= */
 function checkAnswer(){
 function check(){
   const val = parseInt(document.getElementById("answer").value);
-  const res = document.getElementById("result");
   const result = document.getElementById("result");
   const res = document.getElementById("result");
 
-  if(val === resultValue){
-    res.innerHTML = "✅ Excellent!";
   if(val === total){
     result.innerHTML = "✅ Correct!";
   if(val === resultValue){
     res.innerHTML = "✅ Excellent!";
+  let ans = parseInt(document.getElementById("answer").value);
+  let result = document.getElementById("result");
+
+  if(ans === totalSum){
+    result.innerText = "✅ Correct!";
   } else {
     result.innerHTML = "❌ Wrong!";
     res.innerHTML = "❌ Wrong Answer";
-    result.innerHTML = "❌ Wrong! Answer: " + total;
+    result.innerText = "❌ Wrong! Answer: " + totalSum;
   }
 
   setTimeout(()=>{
     document.getElementById("answerBox").style.display = "none";
     document.getElementById("ui").style.display = "block";
     document.getElementById("answer").value = "";
-    res.innerHTML = "";
     result.innerHTML = "";
     res.innerHTML = "";
     running = false;
   }, 2000);
+  },2000);
 }
 
-/* ANIMATION LOOP */
-/* ANIMATION */
+/* ================= LOOP ================= */
 function animate(){
   requestAnimationFrame(animate);
 
-  player.position.x = Math.sin(Date.now()*0.001)*2;
-  if(player){
-    player.position.x = Math.sin(Date.now()*0.001)*2;
+  if(running){
+    camera.position.z -= speed;
+
+    let passedAll = true;
+
+    numbers.forEach(n=>{
+      n.position.z += speed;
+
+      if(n.position.z < camera.position.z + 10){
+        passedAll = false;
+      }
+    });
+
+    // END GAME
+    if(passedAll && numbers.length > 0){
+      running = false;
+      document.getElementById("ui").style.display = "none";
+      document.getElementById("answerBox").style.display = "block";
+    }
   }
 
   renderer.render(scene,camera);
@@ -385,13 +440,12 @@ function animate(){
 animate();
 
 /* RESIZE */
-window.addEventListener("resize",()=>{
 window.addEventListener("resize", ()=>{
 window.addEventListener("resize",()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
-@@ -329,4 +259,3 @@ <h2>🌿 ZED Flash Anzan</h2>
+@@ -259,3 +277,4 @@ <h2>🌿 ZED Flash Anzan</h2>
 </script>
 
 </body>
