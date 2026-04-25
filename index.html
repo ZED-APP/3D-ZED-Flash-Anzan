@@ -1,115 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<title>ZED Flash Anzan 3D Jungle</title>
+<title>ZED Flash Anzan Jungle PRO+</title>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZED Flash Anzan Jungle</title>
-<title>ZED Flash Anzan Jungle PRO</title>
 
 <style>
-  body {
-    margin:0;
-    overflow:hidden;
-    font-family:Arial;
-  }
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial;
+  background: #000;
+  margin:0;
+  overflow:hidden;
+  font-family:Arial;
+  background:black;
+}
+body { margin:0; overflow:hidden; font-family:Arial; }
 
-  body { margin:0; overflow:hidden; font-family:Arial; }
-  #ui {
-    position: absolute;
-    top: 10px;
-@@ -21,27 +15,17 @@
-    padding: 12px;
-    border-radius: 8px;
-    width: 260px;
-    max-width: 90vw;
-  }
-
-  #ui label {
-    display:block;
-    margin-top:8px;
-    font-size:12px;
-  }
-
-  #ui label { display:block; margin-top:8px; font-size:12px; }
-  #ui input, #ui select {
-    width: 100%;
-  }
-
-  #startBtn {
-    margin-top:10px;
-    width:100%;
-    padding:10px;
-    padding:8px;
-    cursor:pointer;
-    font-size:14px;
-  }
-
-  #hud {
-    position:absolute;
-    bottom:20px;
-@@ -52,44 +36,82 @@
-    padding:10px;
-    border-radius:8px;
-  }
-body { margin:0; overflow:hidden; font-family:Arial; background:black; }
-
+/* ===== UI PANEL ===== */
+/* UI */
 #ui {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 280px;
+  padding: 15px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid #00ff99;
+  border-radius: 12px;
+  color: white;
   position:absolute;
-  top:12px; left:12px;
-  width:270px;
-  padding:12px;
-  background:rgba(20,20,20,0.75);
+  top:20px;
+  left:20px;
+@@ -38,88 +27,92 @@
+  border-radius:12px;
   color:white;
-  border-radius:10px;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  z-index: 10;
+  z-index:10;
 }
 
-  /* ===== MOBILE RESPONSIVE ===== */
-  @media (max-width: 768px) {
-    #ui {
-      width: 90vw;
-      left: 5vw;
-      top: 10px;
-      font-size: 14px;
-    }
-#ui label { font-size:12px; margin-top:8px; display:block; opacity:0.9; }
+h2 {
+  color: #00ff99;
+  margin: 5px 0 10px;
+  text-align: center;
+  color:#00ff99;
+  text-align:center;
+  margin:5px 0 10px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  width: 260px;
+  z-index: 10;
+}
 
-    #ui label {
-      font-size: 13px;
-    }
-#ui input, #ui select {
+label {
+  font-size: 12px;
+  opacity: 0.8;
+  font-size:12px;
+  opacity:0.8;
+  display:block;
+  margin-top:8px;
+}
+
+select, input {
+  width: 100%;
+  margin: 5px 0 10px;
+  padding: 6px;
   width:100%;
   padding:6px;
-  border-radius:6px;
-  border:none;
   margin-top:4px;
 }
+#ui label { display:block; margin-top:8px; font-size:12px; }
+#ui input, #ui select { width: 100%; }
 
-    #startBtn {
-      padding:12px;
-      font-size:16px;
-    }
 button {
-  width:100%;
+  width: 100%;
+  padding: 10px;
+  background: #00ff99;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+#startBtn {
   margin-top:10px;
+  width:100%;
   padding:10px;
+  background:#00ff99;
   border:none;
-  border-radius:8px;
-  background:#2ecc71;
-  color:white;
   font-weight:bold;
+  padding:8px;
   cursor:pointer;
+  margin-top:10px;
 }
 
-    #hud {
-      font-size:18px;
-      bottom:10px;
-      left:10px;
-      padding:8px;
-    }
-  }
-button:hover { background:#27ae60; }
-
+button:hover {
+  transform: scale(1.05);
+  transform:scale(1.05);
+  background:#00cc77;
+/* HUD */
 #hud {
   position:absolute;
   bottom:20px;
@@ -117,56 +113,61 @@ button:hover { background:#27ae60; }
   color:white;
   font-size:22px;
   background:rgba(0,0,0,0.4);
-  padding:10px 14px;
-  border-radius:10px;
+  padding:10px;
+  border-radius:8px;
 }
 
-  @media (max-width: 480px) {
-    #ui {
-      width: 95vw;
-      left: 2.5vw;
-      padding:10px;
-    }
-#popup {
+/* ===== ANSWER BOX ===== */
+/* ANSWER */
+/* ANSWER PANEL */
+#answerBox {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  padding: 15px;
+  border-radius: 10px;
+  display: none;
+  z-index: 10;
   position:absolute;
+  bottom:30px;
   top:50%;
   left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.7);
+  padding:15px;
+  border-radius:10px;
   transform:translate(-50%,-50%);
-  background:rgba(0,0,0,0.85);
-  padding:20px;
-  border-radius:12px;
+  background:rgba(0,0,0,0.9);
   color:white;
+  padding:20px;
+  border-radius:10px;
   display:none;
+  z-index:10;
   text-align:center;
 }
 
-#popup input {
-  margin-top:10px;
-  padding:8px;
+#result {
+  margin-top: 10px;
+  text-align: center;
+  color: white;
+#answerBox input {
   width:100%;
-  border-radius:6px;
-  border:none;
-}
-
-#popup button {
+  padding:8px;
   margin-top:10px;
+  text-align:center;
 }
+@@ -128,78 +121,134 @@
 
-.good { color:#2ecc71; font-size:20px; }
-.bad { color:#e74c3c; font-size:20px; }
+<body>
 
-    #hud {
-      font-size:16px;
-    }
-  }
-</style>
-</head>
-
-@@ -98,74 +120,95 @@
+<!-- CONTROL PANEL -->
+<!-- UI -->
 <div id="ui">
+  <h2>🌿 ZED Flash Anzan</h2>
   <label>Speed</label>
   <input id="speed" type="range" min="1" max="20" value="5">
-  <input id="speed" type="range" min="1" max="20" value="6">
 
   <label>Digit Range</label>
   <select id="digits">
@@ -177,238 +178,380 @@ button:hover { background:#27ae60; }
     <option value="99999">1 - 99999</option>
   </select>
 
+  <label>Type</label>
+  <select id="type">
   <label>Mode</label>
   <select id="mode">
     <option value="both">+ and -</option>
     <option value="plus">Only +</option>
+@@ -95,209 +86,195 @@
     <option value="minus">Only -</option>
+@@ -104,29 +107,29 @@
   </select>
 
-@@ -62,33 +109,41 @@
+  <label>Digits</label>
+  <select id="digits">
+    <option value="9">1–9</option>
+    <option value="99">1–99</option>
+    <option value="999">1–999</option>
+    <option value="9999">1–9999</option>
+    <option value="99999">1–99999</option>
+  </select>
   <label>Number of Lines</label>
   <input id="lines" type="number" value="5" min="1" max="50">
 
+  <label>Speed</label>
+  <input type="range" id="speed" min="200" max="2000" value="900">
+
+  <label>Lines (3–100)</label>
+  <label>Lines</label>
+  <input type="number" id="lines" min="3" max="100" value="10">
+
+  <button onclick="start()">START TRAINING</button>
+  <button onclick="startGame()">START</button>
   <button id="startBtn">Start Game</button>
-  <button onclick="startGame()">START TRAINING</button>
 </div>
 
+<!-- ANSWER -->
 <div id="hud">Score: 0</div>
 
-<div id="popup">
-  <div id="resultText">Enter result</div>
-  <input id="answer" type="number" placeholder="Your answer">
+<div id="answerBox">
+  <input type="number" id="answer" placeholder="Your answer">
+  <button onclick="check()">Submit</button>
+  <h3>Enter Answer</h3>
+  <input id="answer" type="number">
   <button onclick="checkAnswer()">Submit</button>
+  <div id="result"></div>
+  <p id="result"></p>
 </div>
 
+<!-- THREE.JS -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
+
+/* =========================
+   3D SETUP
+========================= */
+/* =======================
+   BASIC SETUP
+======================= */
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x0a1a0a, 10, 80);
+scene.fog = new THREE.Fog(0x0a1a0a, 10, 90);
+
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+camera.position.set(0,2,6);
+@@ -151,7 +154,7 @@
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+/* LIGHT */
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5,10,5);
+scene.add(light);
+
+/* GROUND */
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(200,200),
+  new THREE.MeshStandardMaterial({color:0x0a3d0a})
+);
+ground.rotation.x = -Math.PI/2;
+scene.add(ground);
+
+/* TREES */
+function tree(x,z){
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.2,0.2,2),
+    new THREE.CylinderGeometry(0.2,0.3,2),
+    new THREE.MeshStandardMaterial({color:0x5c3a21})
+  );
 let scene, camera, renderer;
-let player;
 let numbers = [];
-let speed = 0.1;
-let score = 0;
 let sequence = [];
 let index = 0;
-let score = 0;
 let running = false;
-let finalResult = 0;
+let score = 0;
+let totalSum = 0;
 let speed = 0.1;
 
+@@ -167,34 +170,40 @@
+  const leaves = new THREE.Mesh(
+    new THREE.SphereGeometry(1),
+    new THREE.MeshStandardMaterial({color:0x0f5})
+  );
 init();
 animate();
 
+  trunk.position.set(x,1,z);
+  leaves.position.set(x,3,z);
+/* ================= INIT ================= */
 function init(){
   scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0x0a3d1c, 10, 100);
-  scene.fog = new THREE.Fog(0x0b3d2e, 10, 120);
 
+  scene.add(trunk);
+  scene.add(leaves);
+}
   camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
   camera.position.set(0,2,5);
-  camera.position.set(0,3,6);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+for(let i=0;i<70;i++){
+for(let i=0;i<60;i++){
+  tree((Math.random()-0.5)*60, (Math.random()-0.5)*60);
+}
   renderer = new THREE.WebGLRenderer();
-  renderer = new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
   document.body.appendChild(renderer.domElement);
 
+/* PLAYER */
+const player = new THREE.Mesh(
+  new THREE.BoxGeometry(0.5,1,0.5),
+  new THREE.MeshStandardMaterial({color:0x00ff99})
+let player;
+const loader = new THREE.GLTFLoader();
+
+@@ -212,121 +261,216 @@
+    scene.add(player);
+  }
+);
+player.position.y = 0.5;
+scene.add(player);
   const light = new THREE.DirectionalLight(0xffffff, 1);
-@@ -97,115 +152,152 @@
   light.position.set(5,10,5);
   scene.add(light);
 
-  // GROUND (jungle path)
-  const groundGeo = new THREE.PlaneGeometry(20, 200);
-  const groundMat = new THREE.MeshStandardMaterial({color:0x1f7a3a});
-  const ground = new THREE.Mesh(groundGeo, groundMat);
-  // GROUND
+/* GAME STATE */
+/* GAME */
+let sequence = [];
+let resultValue = 0;
+let total = 0;
+let running = false;
   const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(30,200),
-    new THREE.MeshStandardMaterial({color:0x145a32})
+    new THREE.PlaneGeometry(20,200),
+    new THREE.MeshStandardMaterial({color:0x1f7a3a})
   );
   ground.rotation.x = -Math.PI/2;
   ground.position.z = -80;
   scene.add(ground);
 
-  // trees (simple cubes)
   for(let i=0;i<60;i++){
     let tree = new THREE.Mesh(
       new THREE.CylinderGeometry(0.2,0.5,2),
-  // PLAYER (simple humanoid)
-  player = new THREE.Mesh(
-    new THREE.CapsuleGeometry(0.4, 1.2, 6, 12),
-    new THREE.MeshStandardMaterial({color:0xffd166})
-  );
-  player.position.set(0,1,-2);
-  scene.add(player);
-
-  // trees
-  for(let i=0;i<80;i++){
-    const tree = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.3,0.6,2),
       new THREE.MeshStandardMaterial({color:0x0b3d1a})
     );
     tree.position.set((Math.random()>0.5?6:-6),1,-i*4);
-    tree.position.set((Math.random()>0.5?7:-7),1,-i*3);
     scene.add(tree);
   }
 
-@@ -175,8 +218,12 @@
+/* NUMBER GENERATOR */
+function gen(max, type){
+/* GENERATE NUMBER */
+function gen(max, mode){
+  let n = Math.floor(Math.random()*max)+1;
+  document.getElementById("startBtn").onclick = startGame;
+}
+
+  if(type === "plus") return n;
+  if(type === "minus") return -n;
+  if(mode === "plus") return n;
+  if(mode === "minus") return -n;
+/* ================= GENERATE ================= */
 function generateSequence(){
   sequence = [];
-  const max = parseInt(document.getElementById("digits").value);
-  finalResult = 0;
+  totalSum = 0;
 
-  const max = +document.getElementById("digits").value;
+  return Math.random()>0.5 ? n : -n;
+}
+  const max = parseInt(document.getElementById("digits").value);
   const mode = document.getElementById("mode").value;
   const lines = parseInt(document.getElementById("lines").value);
-  const lines = +document.getElementById("lines").value;
 
+/* SHOW NUMBER (3D EFFECT) */
+/* FLOAT NUMBER */
+function showNumber(n){
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.2),
+@@ -212,27 +221,28 @@
+    new THREE.MeshStandardMaterial({color:0x00ff99})
+  );
   for(let i=0;i<lines;i++){
     let val = Math.floor(Math.random()*max)+1;
-@@ -188,28 +235,45 @@
-    } else {
-      sequence.push(Math.random()>0.5 ? val : -val);
-    }
-    let v = Math.floor(Math.random()*max)+1;
 
-    if(mode === "plus") v = Math.abs(v);
-    if(mode === "minus") v = -Math.abs(v);
-    if(mode === "both") v = Math.random()>0.5 ? v : -v;
+  mesh.position.set(
+    (Math.random()-0.5)*3,
+    2,
+    (Math.random()-0.5)*3
+  );
+    if(mode === "plus") val = Math.abs(val);
+    else if(mode === "minus") val = -Math.abs(val);
+    else val = Math.random()>0.5 ? val : -val;
 
-    sequence.push(v);
-    finalResult += v;
+  scene.add(mesh);
+  setTimeout(()=>scene.remove(mesh), 600);
+    sequence.push(val);
+    totalSum += val;
   }
 }
 
+/* START GAME */
+function start(){
+function startGame(){
+  if(running) return;
+  running = true;
+/* ================= SPAWN ================= */
 function spawnNumber(value, z){
-function spawnNumber(val, z){
   const canvas = document.createElement("canvas");
   canvas.width = 256;
   canvas.height = 256;
-  canvas.width = 256; canvas.height = 256;
   const ctx = canvas.getContext("2d");
 
-  ctx.fillStyle = "rgba(0,0,0,0.7)";
+  sequence = [];
+  resultValue = 0;
+  total = 0;
+  ctx.fillStyle="black";
   ctx.fillRect(0,0,256,256);
 
-  ctx.font = "bold 60px Arial";
-  ctx.font = "bold 70px Arial";
-  ctx.fillStyle = "white";
-  ctx.textAlign = "center";
+  document.getElementById("ui").style.display = "none";
+  ctx.font="bold 60px Arial";
+  ctx.fillStyle="white";
+  ctx.textAlign="center";
   ctx.fillText(value,128,140);
-  ctx.fillText(val,128,140);
 
+  const type = document.getElementById("type").value;
+  const mode = document.getElementById("mode").value;
+  const max = parseInt(document.getElementById("digits").value);
+  const speed = parseInt(document.getElementById("speed").value);
+  const lines = parseInt(document.getElementById("lines").value);
   const tex = new THREE.CanvasTexture(canvas);
-  const mat = new THREE.MeshBasicMaterial({map:tex, transparent:true});
-  const geo = new THREE.PlaneGeometry(2,2);
 
-  const mesh = new THREE.Mesh(geo,mat);
+  let i = 0;
   const mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(2,2),
-    new THREE.MeshBasicMaterial({map:tex,transparent:true})
+    new THREE.MeshBasicMaterial({map:tex, transparent:true})
   );
 
+  const interval = setInterval(()=>{
+    const num = gen(max, type);
   mesh.position.set((Math.random()-0.5)*6,2,z);
   scene.add(mesh);
 
-@@ -223,19 +287,51 @@
+    let num = gen(max, mode);
+  numbers.push(mesh);
+}
+
+    sequence.push(num);
+    resultValue += num;
+    total += num;
+/* ================= START ================= */
+function startGame(){
+  running = true;
+  index = 0;
+  score = 0;
+
+    showNumber(num);
   numbers.forEach(n => scene.remove(n));
   numbers = [];
 
-  score = 0;
-  index = 0;
-  running = true;
+    i++;
+    if(i >= lines){
+      clearInterval(interval);
+  document.getElementById("answerBox").style.display = "none";
+  document.getElementById("result").innerText = "";
 
+      setTimeout(()=>{
+        document.getElementById("answerBox").style.display = "block";
+      }, speed);
+    }
   generateSequence();
 
   for(let i=0;i<sequence.length;i++){
     spawnNumber(sequence[i], -i*6 - 10);
   }
 
+@@ -249,43 +259,45 @@
+  }, speed);
   speed = parseFloat(document.getElementById("speed").value) * 0.05;
-  speed = +document.getElementById("speed").value * 0.05;
 }
 
-function showPopup(){
-  document.getElementById("popup").style.display = "block";
-  document.getElementById("resultText").innerText = "Enter final result";
-}
-
+/* CHECK ANSWER */
+function check(){
+/* ================= ANSWER ================= */
 function checkAnswer(){
-  const ans = +document.getElementById("answer").value;
+  const val = parseInt(document.getElementById("answer").value);
+  const res = document.getElementById("result");
+  const result = document.getElementById("result");
+  let ans = parseInt(document.getElementById("answer").value);
+  let result = document.getElementById("result");
 
-  const popup = document.getElementById("popup");
-
-  if(ans === finalResult){
-    popup.innerHTML = "<div class='good'>✔ Correct! Excellent memory</div>";
+  if(val === resultValue){
+    res.innerHTML = "✅ Excellent!";
+  if(val === total){
+    result.innerHTML = "✅ Correct!";
+  if(ans === totalSum){
+    result.innerText = "✅ Correct!";
   } else {
-    popup.innerHTML = "<div class='bad'>✖ Wrong Answer</div><br>Correct: " + finalResult;
+    res.innerHTML = "❌ Wrong Answer";
+    result.innerHTML = "❌ Wrong! Answer: " + total;
+    result.innerText = "❌ Wrong! Answer: " + totalSum;
   }
 
   setTimeout(()=>{
-    popup.style.display = "none";
-    popup.innerHTML = `
-      <div id="resultText">Enter result</div>
-      <input id="answer" type="number">
-      <button onclick="checkAnswer()">Submit</button>
-    `;
-  }, 2500);
+    document.getElementById("answerBox").style.display = "none";
+    document.getElementById("ui").style.display = "block";
+    document.getElementById("answer").value = "";
+    res.innerHTML = "";
+    result.innerHTML = "";
+    running = false;
+  }, 2000);
+  },2000);
 }
 
+/* ANIMATION LOOP */
+/* ANIMATION */
+/* ================= LOOP ================= */
 function animate(){
   requestAnimationFrame(animate);
 
+  player.position.x = Math.sin(Date.now()*0.001)*2;
+  if(player){
+    player.position.x = Math.sin(Date.now()*0.001)*2;
   if(running){
-    player.position.z -= speed;
     camera.position.z -= speed;
 
-    numbers.forEach(n=>{
-@@ -247,6 +343,12 @@
-          index++;
-          document.getElementById("hud").innerText = "Score: " + score;
-        }
-        index++;
-      }
+    let passedAll = true;
 
-      if(index >= sequence.length){
-        running = false;
-        setTimeout(showPopup, 800);
+    numbers.forEach(n=>{
+      n.position.z += speed;
+
+      if(n.position.z < camera.position.z + 10){
+        passedAll = false;
       }
     });
-  }
-@@ -255,11 +357,13 @@
-}
 
-window.addEventListener("resize", ()=>{
+    // END GAME
+    if(passedAll && numbers.length > 0){
+      running = false;
+      document.getElementById("ui").style.display = "none";
+      document.getElementById("answerBox").style.display = "block";
+    }
+  }
+
+  renderer.render(scene,camera);
+}
+animate();
+
+/* RESIZE */
 window.addEventListener("resize",()=>{
+window.addEventListener("resize", ()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
-  renderer.setSize(innerWidth,innerHeight);
 });
+
 </script>
 
 </body>
